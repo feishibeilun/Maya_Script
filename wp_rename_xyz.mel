@@ -1,26 +1,10 @@
-/* This file downloaded from Highend3d.com
-''  
-''  Highend3d.com File Information:
-''  
-''    Script Name: wp rename
-''    Author:  
-''    Last Updated: Apr 14, 2024
-''    Update/Change this file at:
-''    http://Highend3d.com/maya/downloads/mel_scripts/utility_external/renaming/5786.html
-''  
-''  Please do not alter any information above this line
-''  it is generated dynamically by Highend3d.com and will
-''  be changed automatically on any updates.
-*/
-//======================================================================
-//======================================================================
 // ---->  Author Information  <----
 //======================================================================
 /*
 
-William Petruccelli
-email:	williampetruccelli@gmail.com
-web site:	www.williampetruccelli.com
+Xiaoyue Zhang
+email:	xiaoyuezhangart@gmail.com
+web site:	https://www.artstation.com/xiaoyuezhang
 
 */
 
@@ -37,21 +21,20 @@ Version:			1.1
 Description:
 
 	WP Rename is a Script for renaming/replacing names of DAG objects and adding prefix, suffix etc.
-	The tool was made by williampetruccelli, with he hashRename tool (by Jason Schleifer) and the rename tool (by Michael Comet) integrated.
+	The tool was made by Williampetruccelli, with he hashRename tool (by Jason Schleifer) and the rename tool (by Michael Comet) integrated.
 	This tool updated by Xiaoyue Zhang in 2024, mainly remove the update script and update to the newest mel.
 	
 
 Usage and Example:
 
-	Run the "wp_rename()" procedure on the command line
-
-	Recomand using 'Rename' Icon in Maya for shelf purpose.
+	Run the "wp_rename_xyz()" procedure on the command line
 	
 	
 External Scripts:
 
 		- HashRename by Jason Schleifer
 		- cometRename.mel by Michael Comet
+		- WP Rename Williampetruccelli
 
 */
 
@@ -59,7 +42,7 @@ External Scripts:
 //======================================================================
 // entry procedure
 //======================================================================
-global proc wp_rename()
+global proc wp_rename_xyz()
 {
 	wp_RenameWindow();
 }
@@ -182,21 +165,21 @@ columnLayout -adjustableColumn 0;
 				button -l "joint" -bgc 0.749 1 1 -c "WP_quickSuffix _joint";
 				button -l "anim" -bgc 0.749 1 1 -c "WP_quickSuffix _anim";
 				button -l "loc" -bgc 0.749 1 1 -c "WP_quickSuffix _loc";
-				button -l "crv" -bgc 0.749 1 1 -c "WP_quickSuffix _crv";
+				button -l "High" -bgc 0.749 1 1 -c "WP_quickSuffix _High";
 				
 				button -l "ik" -bgc 0.749 1 1 -c "WP_quickSuffix _ik";
 				button -l "geo" -bgc 0.749 1 1 -c "WP_quickSuffix _geo";
 				button -l "proxyGeo" -bgc 0.749 1 1 -c "WP_quickSuffix _proxyGeo";
 				button -l "set" -bgc 0.749 1 1 -c "WP_quickSuffix _set";
-				button -l "eff" -bgc 0.749 1 1 -c "WP_quickSuffix _eff";
+				button -l "Low" -bgc 0.749 1 1 -c "WP_quickSuffix _Low";
 				
 				button -l "dummy" -bgc 0.749 1 1 -c "WP_quickSuffix _dummy";
 				button -l "ltc" -bgc 0.749 1 1 -c "WP_quickSuffix _ltc";
 				button -l "clust" -bgc 0.749 1 1 -c "WP_quickSuffix _clust";
-				button -l "inf" -bgc 0.749 1 1 -c "WP_quickSuffix _inf";
-				text -l "";
+				button -l "eff" -bgc 0.749 1 1 -c "WP_quickSuffix _eff";
+				button -l "crv" -bgc 0.749 1 1 -c "WP_quickSuffix _crv";
 
-				button -l "const" -bgc 0.749 1 1 -c "WP_quickSuffix _const";
+				button -l "Ctrl" -bgc 0.749 1 1 -c "WP_quickSuffix _Ctrl";
 				button -l "Oconst" -bgc 0.749 1 1 -c "WP_quickSuffix _Oconst";
 				button -l "Pconst" -bgc 0.749 1 1 -c "WP_quickSuffix _Pconst";
 				button -l "POconst" -bgc 0.749 1 1 -c "WP_quickSuffix _POconst";
@@ -225,9 +208,21 @@ columnLayout -adjustableColumn 0;
 			button -h 23 -l "Apply" -bgc 0.451 0.569 1 -c "WP_SearchAndRename()";
 		setParent..;
 	setParent..;
+
+	// Namespace Editor
+	frameLayout -label"Namespace Cleaner"
+	            -collapse 1 -collapsable 1
+				-collapseCommand "int $winSize = `window -q -h wp_RenameWindow`; int $newSize = $winSize - 104; window -e -h $newSize wp_RenameWindow;"
+				-expandCommand "int $winSize = `window -q -h wp_RenameWindow`; int $newSize = $winSize + 104; window -e -h $newSize wp_RenameWindow;"
+				-w 320 -marginWidth 5 -marginHeight 5;
+			columnLayout -adjustableColumn 1;
+			rowColumnLayout -numberOfColumns 2 -columnWidth 1 150 -columnWidth 2 170;
+			    button -h 23 -l "Delete to Root" -bgc 0.451 0.569 1 -c "WP_delete_namesapce_root()";
+				button -l "Delete to parent" -bgc 0.451 0.569 1 -c "WP_delete_namesapce_parent()";
+			setParent..;
 	
 
-window -e -wh 330 500 wp_RenameWindow;
+window -e -wh 330 510 wp_RenameWindow;
 showWindow wp_RenameWindow;
 
 }//wp_RenameWindow
@@ -673,11 +668,43 @@ global proc wpRename_mc_doRename(int $mode)
     select $objs;
 }//wpRename_mc_doRename
 
+global proc WP_delete_namesapce_root()
+{   //WP_delete_namespace_root
+	//string $objects[] = `ls -sl`;
+	string $jointSelected[0]= `ls -sl -long`;
+	//string $jointSelected[0]= sort($jointSelected);
+	$jointSelected = `sort $jointSelected`;
+	int $jointSelectedSize = size($jointSelected);
 
+	for ($i=$jointSelectedSize-1; $i >= 0; $i--)
+	{
+		
+		int $colonPos = `gmatch $i "*:*"`;
+        if ($colonPos == 0) {
+            print ("No namespace found for " + $i + "\n");
+            continue;
+        }
+		namespace -remove -mergeNamespaceWithRoot $i;
+	}
+}//WP_delete_namesapce_root
 
+global proc WP_delete_namesapce_parent()
+{   //WP_delete_namespace_root
+	//string $objects[] = `ls -sl`;
+	string $jointSelected[0]= `ls -sl -long`;
+	//string $jointSelected[0]= sort($jointSelected);
+	$jointSelected = `sort $jointSelected`;
+	int $jointSelectedSize = size($jointSelected);
 
-
-
-
-
+	for ($i=$jointSelectedSize-1; $i >= 0; $i--)
+	{
+		
+		int $colonPos = `gmatch $i "*:*"`;
+        if ($colonPos == 0) {
+            print ("No namespace found for " + $i + "\n");
+            continue;
+        }
+		namespace -remove -mergeNamespaceWithParent $i;
+	}
+}//WP_delete_namesapce_parent
 
